@@ -10,14 +10,22 @@ import (
 
 func coef_to_string(coef, pow int) (string) {
     var term string
-    if coef != 0 {
-        if pow == 1 {
-            term = fmt.Sprintf("%vx", coef)
-        } else if pow == 0 {
-            term = fmt.Sprintf("%v", coef)
-        } else {
-            term = fmt.Sprintf("%vx^%v", coef, pow)
-        }
+    if coef == 0 {
+        return term
+    }
+
+    var num string = fmt.Sprintf("%v", coef)
+
+    if (coef == 1 || coef == -1) && pow != 0 {
+        num = strings.ReplaceAll(num, "1", "")
+    }
+
+    if pow == 1 {
+        term = fmt.Sprintf("%vx", num)
+    } else if pow == 0 {
+        term = fmt.Sprintf("%v", num)
+    } else {
+        term = fmt.Sprintf("%vx^%v", num, pow)
     }
 
     return term
