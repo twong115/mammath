@@ -31,6 +31,15 @@ func coef_to_string(coef, pow int) (string) {
     return term
 }
 
+func get_question_string(poly []string) (string) {
+    var question string = strings.ReplaceAll(strings.Join(poly[:], " + "), " + -", " - ")
+    if question == "" {
+        question = "0"
+    }
+
+    return question
+}
+
 func main() {
     var degree int = 3
 
@@ -55,13 +64,15 @@ func main() {
         }
     }
 
-    fmt.Println("Find the derivative of:", strings.Join(poly[:], " + "))
+    var question string = get_question_string(poly)
+
+    fmt.Println("Find the derivative of:", question)
 
     reader := bufio.NewReader(os.Stdin)
     answer, _ := reader.ReadString('\n')
     answer = strings.TrimSuffix(answer, "\n")
 
-    var solution string = strings.Join(deri[:], " + ")
+    var solution string = get_question_string(deri)
 
     if answer == solution {
         fmt.Println("Correct!")
