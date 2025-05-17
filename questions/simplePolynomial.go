@@ -1,15 +1,15 @@
 package questions
 
 import (
-    "fmt"
-    "math/rand"
+	"fmt"
+	"math/rand"
 	"strings"
 )
 
 // SimplePolynomial is a type of Question where you solve
 // for the derivative of a polynomial equation.
 type SimplePolynomial struct {
-	degree int
+	degree   int
 	question string
 	solution string
 }
@@ -29,47 +29,47 @@ func GenerateSimplePolynomial(degree int) SimplePolynomial {
 	return res
 }
 
-func FormatEquation(poly []string) (string) {
-    var question string = strings.ReplaceAll(strings.Join(poly[:], " + "), " + -", " - ")
-    if question == "" {
-        question = "0"
-    }
+func FormatEquation(poly []string) string {
+	var question string = strings.ReplaceAll(strings.Join(poly[:], " + "), " + -", " - ")
+	if question == "" {
+		question = "0"
+	}
 
-    return question
+	return question
 }
 
-func (sp SimplePolynomial) coef_to_string(coef, pow int) (string) {
+func (sp SimplePolynomial) coef_to_string(coef, pow int) string {
 	term := ""
-    if coef == 0 {
-        return term
-    }
+	if coef == 0 {
+		return term
+	}
 
-    num := fmt.Sprintf("%d", coef)
+	num := fmt.Sprintf("%d", coef)
 
-    if (coef == 1 || coef == -1) && pow != 0 {
-        num = strings.ReplaceAll(num, "1", "")
-    }
+	if (coef == 1 || coef == -1) && pow != 0 {
+		num = strings.ReplaceAll(num, "1", "")
+	}
 
-    if pow == 1 {
-        term = fmt.Sprintf("%vx", num)
-    } else if pow == 0 {
-        term = fmt.Sprintf("%v", num)
-    } else {
-        term = fmt.Sprintf("%vx^%v", num, pow)
-    }
+	if pow == 1 {
+		term = fmt.Sprintf("%vx", num)
+	} else if pow == 0 {
+		term = fmt.Sprintf("%v", num)
+	} else {
+		term = fmt.Sprintf("%vx^%v", num, pow)
+	}
 
-    return term
+	return term
 }
 
 func (sp *SimplePolynomial) makeQuestion() {
 	degree := sp.degree
 
-	coefficients := make([]int, degree + 1)
-	powers := make([]int, degree + 1)
+	coefficients := make([]int, degree+1)
+	powers := make([]int, degree+1)
 
 	var poly, deri []string
 
-	for i:= 0; i <= degree; i++ {
+	for i := 0; i <= degree; i++ {
 		powers[i] = degree - i
 		coefficients[i] = rand.Intn(10)
 
@@ -78,7 +78,7 @@ func (sp *SimplePolynomial) makeQuestion() {
 			poly = append(poly, term)
 		}
 
-		term = sp.coef_to_string(coefficients[i] * powers[i], powers[i] - 1)
+		term = sp.coef_to_string(coefficients[i]*powers[i], powers[i]-1)
 		if term != "" {
 			deri = append(deri, term)
 		}
@@ -89,4 +89,4 @@ func (sp *SimplePolynomial) makeQuestion() {
 
 	sp.question = question
 	sp.solution = solution
-} 
+}
