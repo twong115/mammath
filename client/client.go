@@ -33,7 +33,7 @@ func main() {
 	}()
 
 	input := bufio.NewScanner(os.Stdin)
-    fmt.Println("Enter your username: ")
+	fmt.Println("Enter your username: ")
 	fmt.Print("> ")
 	for input.Scan() {
 		text := input.Text()
