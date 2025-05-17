@@ -17,7 +17,10 @@ var upgrader = websocket.Upgrader{
 }
 
 var clients = make(map[*websocket.Conn]bool)
+var usernames = make(map[*websocket.Conn]string)
+var points = make(map[*websocket.Conn]int)
 var broadcast = make(chan string)
+var user = make(chan *websocket.Conn)
 var mu sync.Mutex
 
 var currQuestion = questions.GenerateSimplePolynomial(3)
@@ -41,7 +44,18 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("A client connected!")
 
 	mu.Lock()
+    _, msg, err := ws.ReadMessage()
+    if err != nil {
+			mu.Lock()
+			delete(clients, ws)
+			delete(usernames, ws)
+			delete(points, ws)
+			mu.Unlock()
+    }
+
 	clients[ws] = true
+    points[ws] = 0
+    usernames[ws] = string(msg)
 	questionStr := "Question: " + currQuestion.GetQuestionString()
 	ws.WriteMessage(websocket.TextMessage, []byte(questionStr))
 
@@ -52,9 +66,12 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			mu.Lock()
 			delete(clients, ws)
+			delete(usernames, ws)
+			delete(points, ws)
 			mu.Unlock()
 			break
 		}
+        user <- ws
 		broadcast <- string(msg)
 	}
 }
@@ -65,6 +82,8 @@ func broadcastMessage(msg string) {
 		if err != nil {
 			client.Close()
 			delete(clients, client)
+			delete(usernames, client)
+			delete(points, client)
 		}
 	}
 }
@@ -72,14 +91,18 @@ func broadcastMessage(msg string) {
 
 func handleMessages() {
 	for {
+        ws := <- user
+        name := usernames[ws]
 		userAns := <-broadcast
 		mu.Lock()
 		if currQuestion.GetSolutionString() == userAns {
-			broadcastMessage("A user has gotten the correct answer: " + currQuestion.GetSolutionString())
+            points[ws] = points[ws] + 1
+			broadcastMessage(name + " has gotten the correct answer: " + currQuestion.GetSolutionString())
+            broadcastMessage(name + " has gotten " + fmt.Sprint(points[ws]) + " question(s) correct")
 			currQuestion = questions.GenerateSimplePolynomial(3)
 			broadcastMessage("New question: " + currQuestion.GetQuestionString())
 		} else {
-			broadcastMessage("A user has guessed the wrong answer")
+			broadcastMessage(name + " has guessed the wrong answer")
 		}
 		mu.Unlock()
 	}
